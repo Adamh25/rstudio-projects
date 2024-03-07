@@ -1,0 +1,56 @@
+# Generating histograms
+
+df <- read.csv("wdbc.data", header=FALSE)
+colnames(df) <- c("ID", "Diagnosis", "radius1", "texture1", "perimeter1", "area1", "smoothness1", "compactness1", "concavity1", "concave_points1", "symmetry1", "fractal_dimension1")
+
+df <- df[, -(13:32)]
+radius_means <- df$radius1
+
+hist(radius_means, col = "skyblue", main = "Density Histogram for Radius Means", xlab = "Radius Means", ylab = "Density", prob = TRUE)
+
+mu <- mean(radius_means)
+sigma <- sd(radius_means)
+
+x <- seq(min(radius_means), max(radius_means), length = 100)
+y <- dnorm(x, mean = mu, sd = sigma)
+lines(x, y, col = "red", lwd = 2)
+
+# Generating box plots
+
+variables_to_summarize <- c("radius1", "texture1", "perimeter1", "area1", "smoothness1", "compactness1", "concavity1", "concave_points1", "symmetry1", "fractal_dimension1")
+
+summary_stats <- summaryBy(as.formula(paste(paste(variables_to_summarize, collapse = " + "), "~ Diagnosis")), data = df, FUN = c(mean, sd, median))
+print(summary_stats)
+write.csv(summary_stats, "descriptive_statistics_by_diagnosis.csv", row.names = FALSE)
+
+benign_data <- df[df$Diagnosis == "B", "radius1"]
+malignant_data <- df[df$Diagnosis == "M", "radius1"]
+
+boxplot(benign_data, malignant_data, names = c("Benign", "Malignant"),
+        col = c("skyblue", "salmon"),
+        main = "Box Plot of Radius Means by Tumor Type",
+        xlab = "Tumor Type", ylab = "Radius Means")
+      
+legend("topright", legend = c("Benign", "Malignant"), fill = c("skyblue", "salmon"))
+
+# Generating scatter plots
+
+benign_data <- df[df$Diagnosis == "B", "radius1"]
+malignant_data <- df[df$Diagnosis == "M", "radius1"]
+
+boxplot(benign_data, malignant_data, names = c("Benign", "Malignant"),
+        col = c("skyblue", "salmon"),
+        main = "Box Plot of Radius Means by Tumor Type",
+        xlab = "Tumor Type", ylab = "Radius Means")
+
+legend("topright", legend = c("Benign", "Malignant"), fill = c("skyblue", "salmon"))
+
+benign_data <- df[df$Diagnosis == "B", c("radius1", "fractal_dimension1")]
+malignant_data <- df[df$Diagnosis == "M", c("radius1", "fractal_dimension1")]
+
+plot(benign_data$radius1, benign_data$fractal_dimension1, col = "skyblue", pch = 16,
+     xlab = "Radius Mean", ylab = "Fractal Dimension Mean", main = "Scatter Plot of Benign and Malignant Tumors")
+
+points(malignant_data$radius1, malignant_data$fractal_dimension1, col = "salmon", pch = 16)
+
+legend("topright", legend = c("Benign", "Malignant"), col = c("skyblue", "salmon"), pch = 16)
