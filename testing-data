@@ -1,0 +1,46 @@
+# independent t-test
+ library(tidyverse)
+ titanic_data <- read.csv("titanic_data.csv")
+
+ # Filter data for first-class passengers from Southampton (S) and Cherbourg (C)
+ first_class_southampton <- titanic_data %>%
+   filter(Pclass == 1, Embarked == "S", !is.na(Age))
+ first_class_cherbourg <- titanic_data %>%
+   filter(Pclass == 1, Embarked == "C", !is.na(Age))
+
+# Perform independent t-test
+ t_test_result <- t.test(first_class_southampton$Age, first_class_cherbourg$Age)
+ # Print the t-value and p-value
+ cat("t-value:", t_test_result$statistic, "\n")
+t-value: 0.05639622 
+ cat("p-value:", t_test_result$p.value, "\n")
+p-value: 0.9550947 
+
+ # Evaluate the p-value and decide whether to accept or reject the null hypothesis
+ if (t_test_result$p.value > 0.05) {
++   cat("Accept the null hypothesis (no significant difference in mean ages).\n")
++ } else {
++   cat("Reject the null hypothesis (significant difference in mean ages).\n")
++ }
+
+# shapiro-wilks test for normalcy
+> library(tidyverse)
+> titanic_data <- read.csv("titanic_data.csv")
+> first_class_southampton <- titanic_data %>%
++   filter(Pclass == 1, Embarked == "S", !is.na(Age))
+
+> # Perform Shapiro-Wilk test
+> shapiro_test_result <- shapiro.test(first_class_southampton$Age)
+> cat("Shapiro-Wilk test result:\n")
+Shapiro-Wilk test result:
+> cat("W:", shapiro_test_result$statistic, "\n")
+W: 0.994306 
+> cat("p-value:", shapiro_test_result$p.value, "\n")
+p-value: 0.9379656 
+
+> # Evaluate the p-value
+> if (shapiro_test_result$p.value > 0.05) {
++   cat("The data is normal based on the Shapiro-Wilk test.\n")
++ } else {
++   cat("The data is not normal based on the Shapiro-Wilk test.\n")
++ }
