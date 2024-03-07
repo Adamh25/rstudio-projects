@@ -1,0 +1,57 @@
+
+if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  install.packages("ggplot2")
+}
+library(ggplot2)
+
+elephant_data <- read.csv("baby_elephant.csv")
+
+# conversion
+elephant_data <- elephant_data %>%
+  mutate(weight_kg = weight_lb * 0.453592)
+
+linear_model <- lm(weight_kg ~ time_month, data = elephant_data)
+
+# scatterplot
+ggplot(elephant_data, aes(x = time_month, y = weight_kg)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE, color = "blue") +
+  geom_text(
+    x = max(elephant_data$time_month),
+    y = max(elephant_data$weight_kg),
+    label = paste("y =", round(coefficients["(Intercept)"], 2), "+", round(coefficients["time_month"], 2), "x"),
+    hjust = 1, vjust = 1, color = "red"
+  ) +
+  labs(
+    title = "Weight vs Time for Baby Elephants",
+    x = "Time (months)",
+    y = "Weight (kg)"
+  )
+
+# path
+dir <- "./lots_of_elephants"
+
+# list of all CSV files in the folder
+file_list <- list.files(path = dir, pattern = "\\.csv", full.names = TRUE)
+
+# initialize variables
+fastest_elephant_id <- NULL
+max_growth_rate <- -Inf
+
+# loop through each CSV file
+for (file_path in file_list) {
+  
+# find the growth rate
+  # Create a linear model
+  linear_model <- lm(weight_kg ~ time_month, data = elephant_data)
+  
+  growth_rate <- coef(linear_model)["time_month"]
+  
+  if (growth_rate > max_growth_rate) {
+    max_growth_rate <- growth_rate
+    fastest_elephant_id <- basename(file_path)  # Extract the elephant ID from the file name
+  }
+}
+
+cat("Elephant with the fastest growth rate:", fastest_elephant_id, "\n")
+cat("Max Growth Rate:", max_growth_rate, "\n")
